@@ -303,4 +303,5 @@ pnpm --filter @workspace/api-server run typecheck
 
 MIT — Free to use for personal and commercial projects.
 
-## DUSICA S - https://github.com/Dusica77/
+## 
+DUSICA S - https://github.com/Dusica77/
