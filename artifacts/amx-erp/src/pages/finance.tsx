@@ -6,7 +6,8 @@ import {
   useCreateInvoice,
   useCreateTransaction,
   getListInvoicesQueryKey,
-  getListTransactionsQueryKey
+  getListTransactionsQueryKey,
+  getGetFinanceSummaryQueryKey,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,13 +18,194 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, DollarSign, ArrowUpRight, ArrowDownRight, FileText } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+
+function NewInvoiceDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const qc = useQueryClient();
+  const { mutate, isPending } = useCreateInvoice({
+    mutation: {
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: getListInvoicesQueryKey() });
+        qc.invalidateQueries({ queryKey: getGetFinanceSummaryQueryKey() });
+        onClose();
+      },
+    },
+  });
+
+  const [form, setForm] = useState({
+    invoiceNumber: `INV-${Date.now().toString().slice(-6)}`,
+    clientName: "",
+    amount: "",
+    status: "pending",
+    dueDate: "",
+    description: "",
+  });
+
+  const set = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    mutate({
+      data: {
+        invoiceNumber: form.invoiceNumber,
+        clientName: form.clientName,
+        amount: parseFloat(form.amount),
+        status: form.status,
+        dueDate: form.dueDate,
+        description: form.description || undefined,
+      },
+    });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>New Invoice</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label>Invoice #</Label>
+              <Input value={form.invoiceNumber} onChange={(e) => set("invoiceNumber", e.target.value)} required />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Status</Label>
+              <Select value={form.status} onValueChange={(v) => set("status", v)}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="paid">Paid</SelectItem>
+                  <SelectItem value="overdue">Overdue</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Client Name</Label>
+            <Input value={form.clientName} onChange={(e) => set("clientName", e.target.value)} placeholder="Acme Corp" required />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label>Amount (USD)</Label>
+              <Input type="number" min="0" step="0.01" value={form.amount} onChange={(e) => set("amount", e.target.value)} placeholder="0.00" required />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Due Date</Label>
+              <Input type="date" value={form.dueDate} onChange={(e) => set("dueDate", e.target.value)} required />
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Description (optional)</Label>
+            <Textarea value={form.description} onChange={(e) => set("description", e.target.value)} rows={2} placeholder="Services rendered..." />
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+            <Button type="submit" disabled={isPending}>{isPending ? "Creating…" : "Create Invoice"}</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function NewTransactionDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const qc = useQueryClient();
+  const { mutate, isPending } = useCreateTransaction({
+    mutation: {
+      onSuccess: () => {
+        qc.invalidateQueries({ queryKey: getListTransactionsQueryKey() });
+        qc.invalidateQueries({ queryKey: getGetFinanceSummaryQueryKey() });
+        onClose();
+      },
+    },
+  });
+
+  const [form, setForm] = useState({
+    type: "income",
+    amount: "",
+    category: "",
+    description: "",
+    date: new Date().toISOString().split("T")[0],
+  });
+
+  const set = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    mutate({
+      data: {
+        type: form.type,
+        amount: parseFloat(form.amount),
+        category: form.category,
+        description: form.description,
+        date: form.date,
+      },
+    });
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>New Transaction</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label>Type</Label>
+              <Select value={form.type} onValueChange={(v) => set("type", v)}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="income">Income</SelectItem>
+                  <SelectItem value="expense">Expense</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1.5">
+              <Label>Date</Label>
+              <Input type="date" value={form.date} onChange={(e) => set("date", e.target.value)} required />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label>Amount (USD)</Label>
+              <Input type="number" min="0" step="0.01" value={form.amount} onChange={(e) => set("amount", e.target.value)} placeholder="0.00" required />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Category</Label>
+              <Input value={form.category} onChange={(e) => set("category", e.target.value)} placeholder="Sales, Rent, Payroll…" required />
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Description</Label>
+            <Input value={form.description} onChange={(e) => set("description", e.target.value)} placeholder="Short description" required />
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
+            <Button type="submit" disabled={isPending}>{isPending ? "Saving…" : "Add Transaction"}</Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 export default function Finance() {
   const { data: summary, isLoading: isLoadingSummary } = useGetFinanceSummary();
   const { data: invoices, isLoading: isLoadingInvoices } = useListInvoices();
   const { data: transactions, isLoading: isLoadingTransactions } = useListTransactions();
-  
-  const formatCurrency = (val: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(val);
+  const [invoiceOpen, setInvoiceOpen] = useState(false);
+  const [transactionOpen, setTransactionOpen] = useState(false);
+
+  const formatCurrency = (val: number) =>
+    new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(val);
 
   return (
     <div className="space-y-6">
@@ -33,12 +215,18 @@ export default function Finance() {
           <p className="text-muted-foreground mt-1">Manage invoices, track transactions, and view financial health.</p>
         </div>
         <div className="flex gap-2">
-          <Button><Plus className="h-4 w-4 mr-2" /> New Invoice</Button>
-          <Button variant="outline"><Plus className="h-4 w-4 mr-2" /> New Transaction</Button>
+          <Button onClick={() => setInvoiceOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" /> New Invoice
+          </Button>
+          <Button variant="outline" onClick={() => setTransactionOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" /> New Transaction
+          </Button>
         </div>
       </div>
 
-      {/* Summary Cards */}
+      <NewInvoiceDialog open={invoiceOpen} onClose={() => setInvoiceOpen(false)} />
+      <NewTransactionDialog open={transactionOpen} onClose={() => setTransactionOpen(false)} />
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {isLoadingSummary ? (
           Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-32 w-full rounded-xl" />)
@@ -89,7 +277,7 @@ export default function Finance() {
           <TabsTrigger value="invoices">Invoices</TabsTrigger>
           <TabsTrigger value="transactions">Transactions</TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="invoices">
           <Card className="border-none shadow-sm overflow-hidden">
             <Table>
@@ -106,11 +294,9 @@ export default function Finance() {
                 {isLoadingInvoices ? (
                   Array.from({ length: 5 }).map((_, i) => (
                     <TableRow key={i}>
-                      <TableCell><Skeleton className="h-4 w-20" /></TableCell>
-                      <TableCell><Skeleton className="h-4 w-32" /></TableCell>
-                      <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                      <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                      <TableCell><Skeleton className="h-6 w-20 rounded-full" /></TableCell>
+                      {Array.from({ length: 5 }).map((__, j) => (
+                        <TableCell key={j}><Skeleton className="h-4 w-full" /></TableCell>
+                      ))}
                     </TableRow>
                   ))
                 ) : invoices && invoices.length > 0 ? (
@@ -136,7 +322,7 @@ export default function Finance() {
             </Table>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="transactions">
           <Card className="border-none shadow-sm overflow-hidden">
             <Table>
@@ -153,11 +339,9 @@ export default function Finance() {
                 {isLoadingTransactions ? (
                   Array.from({ length: 5 }).map((_, i) => (
                     <TableRow key={i}>
-                      <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                      <TableCell><Skeleton className="h-4 w-40" /></TableCell>
-                      <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                      <TableCell><Skeleton className="h-6 w-20 rounded-full" /></TableCell>
-                      <TableCell className="text-right"><Skeleton className="h-4 w-24 ml-auto" /></TableCell>
+                      {Array.from({ length: 5 }).map((__, j) => (
+                        <TableCell key={j}><Skeleton className="h-4 w-full" /></TableCell>
+                      ))}
                     </TableRow>
                   ))
                 ) : transactions && transactions.length > 0 ? (
@@ -167,12 +351,10 @@ export default function Finance() {
                       <TableCell className="font-medium">{tx.description}</TableCell>
                       <TableCell>{tx.category}</TableCell>
                       <TableCell>
-                        <Badge variant={tx.type === "income" ? "default" : "destructive"}>
-                          {tx.type}
-                        </Badge>
+                        <Badge variant={tx.type === "income" ? "default" : "destructive"}>{tx.type}</Badge>
                       </TableCell>
-                      <TableCell className={`text-right font-medium ${tx.type === 'income' ? 'text-primary' : 'text-destructive'}`}>
-                        {tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount)}
+                      <TableCell className={`text-right font-medium ${tx.type === "income" ? "text-primary" : "text-destructive"}`}>
+                        {tx.type === "income" ? "+" : "-"}{formatCurrency(tx.amount)}
                       </TableCell>
                     </TableRow>
                   ))
