@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "5v_ZG5qmVca1sn5xC6ORj"
+uri = "file://amx-erp-suite.tar.gz"
+type = "unspecified"
+title = "AMX ERP Suite — Full Source Code + README"

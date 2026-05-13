@@ -1,20 +1,23 @@
-# [Project name]
+# AMX ERP Suite
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+A production-style AI-powered Cloud ERP web application with authentication, dashboards, finance, HR, inventory, project management, analytics, and AI demand forecasting.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
+- `pnpm --filter @workspace/api-server run dev` — run the API server (port 8080)
+- `pnpm --filter @workspace/amx-erp run dev` — run the frontend
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
 - Required env: `DATABASE_URL` — Postgres connection string
+- Required env: `SESSION_SECRET` — JWT signing secret
 
 ## Stack
 
 - pnpm workspaces, Node.js 24, TypeScript 5.9
-- API: Express 5
+- Frontend: React 19 + Vite, Tailwind CSS, shadcn/ui, Wouter, React Query, Recharts, Framer Motion
+- API: Express 5, bcryptjs, jsonwebtoken, Pino logging
 - DB: PostgreSQL + Drizzle ORM
 - Validation: Zod (`zod/v4`), `drizzle-zod`
 - API codegen: Orval (from OpenAPI spec)
@@ -22,23 +25,52 @@ _Replace the heading above with the project's name, and this line with one sente
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- OpenAPI contract: `lib/api-spec/openapi.yaml`
+- DB schema: `lib/db/src/schema/` (users, finance, hr, inventory, projects, notifications)
+- API routes: `artifacts/api-server/src/routes/` (auth, dashboard, finance, hr, inventory, projects, analytics, notifications, forecast)
+- Frontend pages: `artifacts/amx-erp/src/pages/`
+- Generated hooks: `lib/api-client-react/src/generated/`
+- Generated Zod schemas: `lib/api-zod/src/generated/`
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Contract-first API — `openapi.yaml` is single source of truth; Orval generates both React Query hooks and Zod validators
+- pnpm monorepo — frontend, API, DB, and generated libs are separate packages sharing a root lockfile
+- Drizzle ORM — lightweight, TypeScript-native, SQL-like query builders
+- Express 5 over NestJS — lean and sufficient; native async error handling
+- JWT in localStorage — acceptable for portfolio; production should use httpOnly cookies
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+- Authentication with role-based access (admin / manager / staff)
+- Dashboard with KPI cards, revenue/expense charts, and activity feed
+- Finance module: invoice CRUD + transaction tracking + summaries
+- HR module: employee management + payroll records + department analytics
+- Inventory module: product catalog + stock levels + low-stock alerts
+- Project management: projects with nested tasks, progress tracking
+- Analytics: department spending, project status, growth metrics
+- AI forecasting: demand and revenue trend charts
+- Notifications center with mark-read support
+- Dark/light mode toggle
+
+## Demo Credentials
+
+- Admin: admin@amxerp.com / Admin1234!
+- Manager: sarah@amxerp.com / Admin1234!
+- Staff: james@amxerp.com / Admin1234!
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- Teal-green gradient with white color scheme
+- No emojis anywhere — icons only (lucide-react)
+- Downloadable zip archive requested at end of project
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- Always run `pnpm --filter @workspace/api-spec run codegen` after changing `openapi.yaml`
+- Body schemas in openapi.yaml must be entity-named (not operation-named) to avoid TS2308 collisions
+- Numeric DB columns (numeric/decimal) return as strings from Drizzle — always `parseFloat()` before sending to API responses
+- Frontend `BASE_PATH` and `PORT` are injected by the workflow runner — don't hardcode them
 
 ## Pointers
 

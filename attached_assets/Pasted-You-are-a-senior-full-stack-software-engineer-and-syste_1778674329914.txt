@@ -1,0 +1,343 @@
+You are a senior full-stack software engineer and system architect.
+
+Help me build an intermediate-level production-style AI-Powered Cloud ERP Suite step-by-step using only the necessary technologies required for a scalable academic/portfolio project.
+
+The goal is to build a clean, modern, full-stack ERP web application with authentication, dashboards, finance, HR, inventory, and AI forecasting features without unnecessary enterprise complexity.
+
+==================================================
+PROJECT OVERVIEW
+================
+
+Project Name:
+AMX ERP Suite
+
+Project Type:
+Full-Stack Multi-Module ERP Web Application
+
+Main Features:
+
+* Authentication & Role-Based Access
+* Dashboard & Analytics
+* Finance Management
+* HR & Payroll
+* Inventory Management
+* Project Management
+* Notifications
+* AI-Based Demand Forecasting
+
+==================================================
+USE ONLY NECESSARY TECHNOLOGIES
+===============================
+
+Frontend:
+
+* Next.js 15
+* React 19
+* TypeScript
+* Tailwind CSS
+* shadcn/ui
+* React Hook Form
+* Zod
+* Recharts
+
+Backend:
+
+* NestJS
+* Node.js
+* TypeScript
+* Prisma ORM
+* PostgreSQL
+* JWT Authentication
+* REST APIs
+
+AI Service:
+
+* Python FastAPI
+* Prophet or scikit-learn
+
+Other Tools:
+
+* Redis (optional caching)
+* Docker (basic setup only)
+* GitHub Actions (simple CI/CD)
+
+==================================================
+DO NOT USE
+==========
+
+Do NOT use:
+
+* Kubernetes
+* Terraform
+* Istio
+* Elasticsearch
+* GraphQL
+* MLflow
+* Microservices complexity
+* Advanced DevOps infrastructure
+
+Keep the project intermediate-level, practical, and portfolio-ready.
+
+==================================================
+PROJECT STRUCTURE
+=================
+
+Generate a clean monorepo/full-stack structure like:
+
+amx-erp-suite/
+│
+├── frontend/
+├── backend/
+├── ai-service/
+├── database/
+├── docs/
+├── docker/
+│
+├── docker-compose.yml
+├── README.md
+└── .env.example
+
+==================================================
+FRONTEND REQUIREMENTS
+=====================
+
+Use:
+
+* Next.js App Router
+* Responsive dashboard layout
+* Tailwind CSS styling
+* shadcn/ui components
+* Protected routes
+* Reusable UI components
+* Charts using Recharts
+* Form validation using Zod
+* API integration using fetch/axios
+
+Pages:
+
+* Login/Register
+* Dashboard
+* Finance
+* HR
+* Inventory
+* Projects
+* Analytics
+* Settings
+
+Generate:
+
+* Folder structure
+* Components structure
+* Layout architecture
+* API service layer
+* Auth flow
+* State management approach
+* Theme setup
+
+==================================================
+BACKEND REQUIREMENTS
+====================
+
+Use NestJS with modular architecture.
+
+Generate modules for:
+
+* auth
+* users
+* finance
+* hr
+* inventory
+* projects
+* analytics
+* notifications
+
+Include:
+
+* JWT authentication
+* RBAC roles
+* DTO validation
+* Prisma ORM setup
+* PostgreSQL integration
+* REST APIs
+* Global error handling
+* Swagger setup
+* Environment config
+
+==================================================
+DATABASE REQUIREMENTS
+=====================
+
+Use PostgreSQL + Prisma ORM.
+
+Generate Prisma schema for:
+
+* users
+* roles
+* employees
+* payrolls
+* products
+* inventory
+* projects
+* tasks
+* invoices
+* transactions
+* notifications
+
+Include:
+
+* Relations
+* Enums
+* Timestamps
+* Indexes
+
+==================================================
+AI SERVICE REQUIREMENTS
+=======================
+
+Use FastAPI.
+
+Generate:
+
+* /predict endpoint
+* /train endpoint
+* demand forecasting example
+* CSV dataset loading
+* simple forecasting model
+
+==================================================
+AUTHENTICATION REQUIREMENTS
+===========================
+
+Implement:
+
+* Login/Register
+* JWT tokens
+* Password hashing
+* Protected routes
+* Role-based access
+* Refresh token strategy (simple)
+
+==================================================
+UI/UX REQUIREMENTS
+==================
+
+Build a modern ERP dashboard UI:
+
+* Sidebar navigation
+* Top navbar
+* KPI cards
+* Charts
+* Tables
+* Forms
+* Responsive design
+* Dark/light mode
+
+==================================================
+DEVELOPMENT APPROACH
+====================
+
+Guide development PHASE BY PHASE.
+
+For every phase provide:
+
+1. Objective
+2. Folder structure
+3. Installation commands
+4. Dependencies
+5. Required files
+6. Complete code
+7. Explanation
+8. Run instructions
+
+==================================================
+DEVELOPMENT PHASES
+==================
+
+Phase 1:
+
+* Project setup
+* Folder structure
+* Frontend initialization
+* Backend initialization
+* Database setup
+
+Phase 2:
+
+* Authentication system
+* JWT auth
+* Login/Register UI
+
+Phase 3:
+
+* Dashboard UI
+* Sidebar/navbar
+* Protected routes
+
+Phase 4:
+
+* Finance module
+
+Phase 5:
+
+* HR & Payroll module
+
+Phase 6:
+
+* Inventory module
+
+Phase 7:
+
+* Project management module
+
+Phase 8:
+
+* Analytics dashboard
+
+Phase 9:
+
+* AI forecasting integration
+
+Phase 10:
+
+* Docker setup
+* Deployment preparation
+
+==================================================
+IMPORTANT INSTRUCTIONS
+======================
+
+Whenever generating code:
+
+* Use clean architecture
+* Use TypeScript properly
+* Use reusable components
+* Use responsive design
+* Add comments where needed
+* Include imports
+* Include file names
+* Include folder paths
+
+Whenever generating backend:
+
+* Use DTO validation
+* Use Prisma best practices
+* Use proper REST APIs
+* Add centralized error handling
+
+Whenever generating frontend:
+
+* Use reusable UI components
+* Use loading/error states
+* Use responsive Tailwind layouts
+* Follow modern dashboard design
+
+Keep everything:
+
+* Intermediate-level
+* Clean
+* Scalable
+* Easy to understand
+* Portfolio-ready
+* Production-style but not overly complex
+
+Start from Phase 1 and build the project step-by-step.

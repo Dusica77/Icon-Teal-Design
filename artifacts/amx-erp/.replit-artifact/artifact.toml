@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "AMX ERP Suite"
+version = "1.0.0"
+id = "artifacts/amx-erp"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 21468
+
+[services.development]
+run = "pnpm --filter @workspace/amx-erp run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/amx-erp", "run", "build" ]
+publicDir = "artifacts/amx-erp/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21468"
+BASE_PATH = "/"
